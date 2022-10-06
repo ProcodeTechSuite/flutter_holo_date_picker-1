@@ -26,6 +26,7 @@ class DatePickerWidget extends StatefulWidget {
     this.dateFormat: DATETIME_PICKER_DATE_FORMAT,
     this.locale: DATETIME_PICKER_LOCALE_DEFAULT,
     this.pickerTheme: DateTimePickerTheme.Default,
+    this.monthShowingType = MonthShowingType.letter,
     this.onCancel,
     this.onChange,
     this.onConfirm,
@@ -41,30 +42,28 @@ class DatePickerWidget extends StatefulWidget {
   final DateTimePickerLocale? locale;
   final DateTimePickerTheme? pickerTheme;
 
+  final MonthShowingType? monthShowingType;
+
   final DateVoidCallback? onCancel;
   final DateValueCallback? onChange, onConfirm;
   final bool looping;
 
   @override
-  State<StatefulWidget> createState() =>
-      _DatePickerWidgetState(this.firstDate, this.lastDate, this.initialDate);
+  State<StatefulWidget> createState() => _DatePickerWidgetState(this.firstDate, this.lastDate, this.initialDate);
 }
 
 class _DatePickerWidgetState extends State<DatePickerWidget> {
   late DateTime _minDateTime, _maxDateTime;
   int? _currYear, _currMonth, _currDay;
   List<int>? _yearRange, _monthRange, _dayRange;
-  FixedExtentScrollController? _yearScrollCtrl,
-      _monthScrollCtrl,
-      _dayScrollCtrl;
+  FixedExtentScrollController? _yearScrollCtrl, _monthScrollCtrl, _dayScrollCtrl;
 
   late Map<String, FixedExtentScrollController?> _scrollCtrlMap;
   late Map<String, List<int>?> _valueRangeMap;
 
   bool _isChangeDateRange = false;
 
-  _DatePickerWidgetState(
-      DateTime? minDateTime, DateTime? maxDateTime, DateTime? initialDateTime) {
+  _DatePickerWidgetState(DateTime? minDateTime, DateTime? maxDateTime, DateTime? initialDateTime) {
     // handle current selected year、month、day
     DateTime initDateTime = initialDateTime ?? DateTime.now();
     this._currYear = initDateTime.year;
@@ -81,26 +80,18 @@ class _DatePickerWidgetState extends State<DatePickerWidget> {
 
     // limit the range of month
     this._monthRange = _calcMonthRange();
-    this._currMonth =
-        min(max(_monthRange!.first, _currMonth!), _monthRange!.last);
+    this._currMonth = min(max(_monthRange!.first, _currMonth!), _monthRange!.last);
 
     // limit the range of day
     this._dayRange = _calcDayRange();
     this._currDay = min(max(_dayRange!.first, _currDay!), _dayRange!.last);
 
     // create scroll controller
-    _yearScrollCtrl = FixedExtentScrollController(
-        initialItem: _currYear! - _yearRange!.first);
-    _monthScrollCtrl = FixedExtentScrollController(
-        initialItem: _currMonth! - _monthRange!.first);
-    _dayScrollCtrl =
-        FixedExtentScrollController(initialItem: _currDay! - _dayRange!.first);
+    _yearScrollCtrl = FixedExtentScrollController(initialItem: _currYear! - _yearRange!.first);
+    _monthScrollCtrl = FixedExtentScrollController(initialItem: _currMonth! - _monthRange!.first);
+    _dayScrollCtrl = FixedExtentScrollController(initialItem: _currDay! - _dayRange!.first);
 
-    _scrollCtrlMap = {
-      'y': _yearScrollCtrl,
-      'M': _monthScrollCtrl,
-      'd': _dayScrollCtrl
-    };
+    _scrollCtrlMap = {'y': _yearScrollCtrl, 'M': _monthScrollCtrl, 'd': _dayScrollCtrl};
     _valueRangeMap = {'y': _yearRange, 'M': _monthRange, 'd': _dayRange};
   }
 
@@ -109,8 +100,7 @@ class _DatePickerWidgetState extends State<DatePickerWidget> {
     return Container(
       //padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 0),
       child: GestureDetector(
-        child: Material(
-            color: Colors.transparent, child: _renderPickerView(context)),
+        child: Material(color: Colors.transparent, child: _renderPickerView(context)),
       ),
     );
   }
@@ -155,8 +145,7 @@ class _DatePickerWidgetState extends State<DatePickerWidget> {
   /// render the picker widget of year、month and day
   Widget _renderDatePickerWidget() {
     List<Widget> pickers = [];
-    List<String> formatArr =
-        DateTimeFormatter.splitDateFormat(widget.dateFormat);
+    List<String> formatArr = DateTimeFormatter.splitDateFormat(widget.dateFormat);
     formatArr.forEach((format) {
       List<int> valueRange = _findPickerItemRange(format)!;
 
@@ -173,12 +162,10 @@ class _DatePickerWidgetState extends State<DatePickerWidget> {
               _changeDaySelection(value);
             }
           },
-          fontSize: widget.pickerTheme!.itemTextStyle.fontSize ??
-              sizeByFormat(widget.dateFormat!));
+          fontSize: widget.pickerTheme!.itemTextStyle.fontSize ?? sizeByFormat(widget.dateFormat!));
       pickers.add(pickerColumn);
     });
-    return Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: pickers);
+    return Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: pickers);
   }
 
   Widget _renderDatePickerColumnComponent(
@@ -196,8 +183,9 @@ class _DatePickerWidgetState extends State<DatePickerWidget> {
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 7, vertical: 18),
               height: 250,
-              decoration:
-                  BoxDecoration(color: Theme.of(context).colorScheme.defaultBGColor,),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.defaultBGColor,
+              ),
               child: CupertinoPicker(
                 backgroundColor: Theme.of(context).colorScheme.defaultBGColor,
                 selectionOverlay: Container(),
@@ -262,21 +250,19 @@ class _DatePickerWidgetState extends State<DatePickerWidget> {
   }
 
   double sizeByFormat(String format) {
-    if (format.contains("-MMMM") || format.contains("MMMM-"))
-      return DATETIME_PICKER_ITEM_TEXT_SIZE_SMALL;
+    if (format.contains("-MMMM") || format.contains("MMMM-")) return DATETIME_PICKER_ITEM_TEXT_SIZE_SMALL;
 
     return DATETIME_PICKER_ITEM_TEXT_SIZE_BIG;
   }
 
-  Widget _renderDatePickerItemComponent(
-      int value, String format, double? fontSize) {
+  Widget _renderDatePickerItemComponent(int value, String format, double? fontSize) {
     var weekday = DateTime(_currYear!, _currMonth!, value).weekday;
 
     return Container(
       height: widget.pickerTheme!.itemHeight,
       alignment: Alignment.center,
       child: AutoSizeText(
-        DateTimeFormatter.formatDateTime(value, format, widget.locale, weekday),
+        DateTimeFormatter.formatDateTime(value, format, widget.locale, weekday, monthShowingType: widget.monthShowingType),
         maxLines: 1,
         style: CWTextStyle(CWTextTypes.primaryText, context),
       ),
@@ -324,16 +310,14 @@ class _DatePickerWidgetState extends State<DatePickerWidget> {
     _isChangeDateRange = true;
 
     List<int> monthRange = _calcMonthRange();
-    bool monthRangeChanged = _monthRange!.first != monthRange.first ||
-        _monthRange!.last != monthRange.last;
+    bool monthRangeChanged = _monthRange!.first != monthRange.first || _monthRange!.last != monthRange.last;
     if (monthRangeChanged) {
       // selected year changed
       _currMonth = max(min(_currMonth!, monthRange.last), monthRange.first);
     }
 
     List<int> dayRange = _calcDayRange();
-    bool dayRangeChanged =
-        _dayRange!.first != dayRange.first || _dayRange!.last != dayRange.last;
+    bool dayRangeChanged = _dayRange!.first != dayRange.first || _dayRange!.last != dayRange.last;
     if (dayRangeChanged) {
       // day range changed, need limit the value of selected day
       _currDay = max(min(_currDay!, dayRange.last), dayRange.first);
@@ -435,3 +419,5 @@ class _DatePickerWidgetState extends State<DatePickerWidget> {
     return [minDay, maxDay];
   }
 }
+
+enum MonthShowingType { letter, number }

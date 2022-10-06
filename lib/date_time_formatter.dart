@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:flutter_holo_date_picker/flutter_holo_date_picker.dart';
+
 import 'date_picker.dart';
 import 'date_picker_constants.dart';
 import 'i18n/date_picker_i18n.dart';
@@ -8,8 +10,7 @@ const String DATE_FORMAT_SEPARATOR = r'[|,-\/._: ]+';
 
 class DateTimeFormatter {
   /// Get default value of date format.
-  static String generateDateFormat(
-      String dateFormat, DateTimePickerMode pickerMode) {
+  static String generateDateFormat(String dateFormat, DateTimePickerMode pickerMode) {
     if (dateFormat.length > 0) {
       return dateFormat;
     }
@@ -32,8 +33,7 @@ class DateTimeFormatter {
   }
 
   /// Split date format to array.
-  static List<String> splitDateFormat(String? dateFormat,
-      {DateTimePickerMode? mode}) {
+  static List<String> splitDateFormat(String? dateFormat, {DateTimePickerMode? mode}) {
     if (dateFormat == null || dateFormat.length == 0) {
       return [];
     }
@@ -71,8 +71,7 @@ class DateTimeFormatter {
   }
 
   /// Format datetime string
-  static String formatDateTime(
-      int value, String format, DateTimePickerLocale? locale, weekday) {
+  static String formatDateTime(int value, String format, DateTimePickerLocale? locale, weekday, {MonthShowingType? monthShowingType}) {
     if (format.length == 0) {
       return value.toString();
     }
@@ -84,7 +83,7 @@ class DateTimeFormatter {
     }
     // format month text
     if (format.contains('M')) {
-      result = _formatMonth(value, result, locale);
+      result = _formatMonth(value, result, locale, monthShowingType: monthShowingType);
     }
     // format day text
     if (format.contains('d')) {
@@ -141,43 +140,43 @@ class DateTimeFormatter {
 //  }
 
   /// format year text
-  static String _formatYear(
-      int value, String format, DateTimePickerLocale? locale) {
+  static String _formatYear(int value, String format, DateTimePickerLocale? locale) {
     if (format.contains('yyyy')) {
       // yyyy: the digit count of year is 4, e.g. 2019
       return format.replaceAll('yyyy', value.toString());
     } else if (format.contains('yy')) {
       // yy: the digit count of year is 2, e.g. 19
-      return format.replaceAll('yy',
-          value.toString().substring(max(0, value.toString().length - 2)));
+      return format.replaceAll('yy', value.toString().substring(max(0, value.toString().length - 2)));
     }
     return value.toString();
   }
 
   /// format month text
-  static String _formatMonth(
-      int value, String format, DateTimePickerLocale? locale) {
-    List<String> months = DatePickerI18n.getLocaleMonths(locale);
-    if (format.contains('MMMM')) {
-      // MMMM: the full name of month, e.g. January
-      return format.replaceAll('MMMM', months[value - 1]);
-    } else if (format.contains('MMM')) {
-      // MMM: the short name of month, e.g. Jan
-      String month = months[value - 1];
-      return format.replaceAll('MMM', month.substring(0, min(3, month.length)));
+  static String _formatMonth(int value, String format, DateTimePickerLocale? locale, {MonthShowingType? monthShowingType}) {
+    switch (monthShowingType) {
+      case MonthShowingType.number:
+        return value < 10 ? '0$value' : value.toString();
+      default:
+        List<String> months = DatePickerI18n.getLocaleMonths(locale);
+        if (format.contains('MMMM')) {
+          // MMMM: the full name of month, e.g. January
+          return format.replaceAll('MMMM', months[value - 1]);
+        } else if (format.contains('MMM')) {
+          // MMM: the short name of month, e.g. Jan
+          String month = months[value - 1];
+          return format.replaceAll('MMM', month.substring(0, min(3, month.length)));
+        }
+        return _formatNumber(value, format, 'M');
     }
-    return _formatNumber(value, format, 'M');
   }
 
   /// format day text
-  static String _formatDay(
-      int value, String format, DateTimePickerLocale? locale) {
+  static String _formatDay(int value, String format, DateTimePickerLocale? locale) {
     return _formatNumber(value, format, 'd');
   }
 
   /// format week text
-  static String _formatWeek(
-      int value, String format, DateTimePickerLocale? locale) {
+  static String _formatWeek(int value, String format, DateTimePickerLocale? locale) {
     if (format.contains('EEEE')) {
       // EEEE: the full name of week, e.g. Monday
       List<String> weeks = DatePickerI18n.getLocaleWeeks(locale)!;
@@ -189,20 +188,17 @@ class DateTimeFormatter {
   }
 
   /// format hour text
-  static String _formatHour(
-      int value, String format, DateTimePickerLocale? locale) {
+  static String _formatHour(int value, String format, DateTimePickerLocale? locale) {
     return _formatNumber(value, format, 'H');
   }
 
   /// format minute text
-  static String _formatMinute(
-      int value, String format, DateTimePickerLocale? locale) {
+  static String _formatMinute(int value, String format, DateTimePickerLocale? locale) {
     return _formatNumber(value, format, 'm');
   }
 
   /// format second text
-  static String _formatSecond(
-      int value, String format, DateTimePickerLocale? locale) {
+  static String _formatSecond(int value, String format, DateTimePickerLocale? locale) {
     return _formatNumber(value, format, 's');
   }
 
