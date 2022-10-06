@@ -153,21 +153,20 @@ class DateTimeFormatter {
 
   /// format month text
   static String _formatMonth(int value, String format, DateTimePickerLocale? locale, {MonthShowingType? monthShowingType}) {
-    switch (monthShowingType) {
-      case MonthShowingType.number:
-        return value < 10 ? '0$value' : value.toString();
-      default:
-        List<String> months = DatePickerI18n.getLocaleMonths(locale);
-        if (format.contains('MMMM')) {
-          // MMMM: the full name of month, e.g. January
-          return format.replaceAll('MMMM', months[value - 1]);
-        } else if (format.contains('MMM')) {
-          // MMM: the short name of month, e.g. Jan
-          String month = months[value - 1];
-          return format.replaceAll('MMM', month.substring(0, min(3, month.length)));
-        }
-        return _formatNumber(value, format, 'M');
+    if (monthShowingType != null && monthShowingType == MonthShowingType.number) {
+      return value < 10 ? '0$value' : value.toString();
     }
+
+    List<String> months = DatePickerI18n.getLocaleMonths(locale);
+    if (format.contains('MMMM')) {
+      // MMMM: the full name of month, e.g. January
+      return format.replaceAll('MMMM', months[value - 1]);
+    } else if (format.contains('MMM')) {
+      // MMM: the short name of month, e.g. Jan
+      String month = months[value - 1];
+      return format.replaceAll('MMM', month.substring(0, min(3, month.length)));
+    }
+    return _formatNumber(value, format, 'M');
   }
 
   /// format day text
