@@ -1,7 +1,5 @@
 import 'dart:math';
 
-import 'package:flutter_holo_date_picker/flutter_holo_date_picker.dart';
-
 import 'date_picker.dart';
 import 'date_picker_constants.dart';
 import 'i18n/date_picker_i18n.dart';
@@ -71,7 +69,7 @@ class DateTimeFormatter {
   }
 
   /// Format datetime string
-  static String formatDateTime(int value, String format, DateTimePickerLocale? locale, weekday, {MonthShowingType? monthShowingType}) {
+  static String formatDateTime(int value, String format, DateTimePickerLocale? locale, weekday) {
     if (format.length == 0) {
       return value.toString();
     }
@@ -83,7 +81,7 @@ class DateTimeFormatter {
     }
     // format month text
     if (format.contains('M')) {
-      result = _formatMonth(value, result, locale, monthShowingType: monthShowingType);
+      result = _formatMonth(value, result, locale);
     }
     // format day text
     if (format.contains('d')) {
@@ -152,11 +150,7 @@ class DateTimeFormatter {
   }
 
   /// format month text
-  static String _formatMonth(int value, String format, DateTimePickerLocale? locale, {MonthShowingType? monthShowingType}) {
-    if (monthShowingType != null && monthShowingType == MonthShowingType.number) {
-      return value < 10 ? '0$value' : value.toString();
-    }
-
+  static String _formatMonth(int value, String format, DateTimePickerLocale? locale) {
     List<String> months = DatePickerI18n.getLocaleMonths(locale);
     if (format.contains('MMMM')) {
       // MMMM: the full name of month, e.g. January

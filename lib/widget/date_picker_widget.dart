@@ -26,7 +26,6 @@ class DatePickerWidget extends StatefulWidget {
     this.dateFormat: DATETIME_PICKER_DATE_FORMAT,
     this.locale: DATETIME_PICKER_LOCALE_DEFAULT,
     this.pickerTheme: DateTimePickerTheme.Default,
-    this.monthShowingType = MonthShowingType.letter,
     this.onCancel,
     this.onChange,
     this.onConfirm,
@@ -41,8 +40,6 @@ class DatePickerWidget extends StatefulWidget {
   final String? dateFormat;
   final DateTimePickerLocale? locale;
   final DateTimePickerTheme? pickerTheme;
-
-  final MonthShowingType? monthShowingType;
 
   final DateVoidCallback? onCancel;
   final DateValueCallback? onChange, onConfirm;
@@ -262,7 +259,7 @@ class _DatePickerWidgetState extends State<DatePickerWidget> {
       height: widget.pickerTheme!.itemHeight,
       alignment: Alignment.center,
       child: AutoSizeText(
-        DateTimeFormatter.formatDateTime(value, format, widget.locale, weekday, monthShowingType: widget.monthShowingType),
+        DateTimeFormatter.formatDateTime(value, format, widget.locale, weekday),
         maxLines: 1,
         style: CWTextStyle(CWTextTypes.primaryText, context),
       ),
@@ -419,5 +416,3 @@ class _DatePickerWidgetState extends State<DatePickerWidget> {
     return [minDay, maxDay];
   }
 }
-
-enum MonthShowingType { letter, number }
