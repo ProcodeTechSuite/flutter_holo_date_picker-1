@@ -278,6 +278,10 @@ class _DatePickerWidgetState extends State<DatePickerWidget> {
 
   /// change the selection of month picker
   void _changeMonthSelection(int index) {
+    if (_isChangeDateRange) {
+      return;
+    }
+
     int month = _monthRange!.first + index;
     if (_currMonth != month) {
       _currMonth = month;
